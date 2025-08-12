@@ -127,6 +127,8 @@ void setup() {
 
 }
 
+
+
 void loop() {
   // ---- Handle serial commands for LED/Buzzer/Tare ----
   handleSerialCommands();

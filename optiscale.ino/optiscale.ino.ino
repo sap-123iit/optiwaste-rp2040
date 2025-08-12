@@ -31,22 +31,25 @@ int getToFIndex(int row, int col) {
 }
 
 bool checkToFCondition() {
-  int indices[] = {
-    getToFIndex(3, 3),  // (3,3)
-    getToFIndex(5, 3),  // (5,3)
-    getToFIndex(3, 5),  // (3,5)
-    getToFIndex(5, 6)   // (5,5)
+  // Positions inside the rectangle (row, col)
+  int positions[][2] = {
+    {6, 2}, {6, 3}, {6, 4}, {6, 5}, {6, 6},  // Row 6
+    {7, 2}, {7, 3}, {7, 4}, {7, 5}, {7, 6}   // Row 7
   };
-  
+
   int withinRangeCount = 0;
-  for (int i = 0; i < 4; i++) {
-    int distance = measurementData.distance_mm[indices[i]];
+  int totalPositions = sizeof(positions) / sizeof(positions[0]);
+
+  for (int i = 0; i < totalPositions; i++) {
+    int index = getToFIndex(positions[i][0], positions[i][1]);
+    int distance = measurementData.distance_mm[index];
     if (distance >= TOF_THRESHOLD_MIN && distance <= TOF_THRESHOLD_MAX) {
       withinRangeCount++;
     }
   }
-  
-  return withinRangeCount >= 2;
+
+  // Example: at least 20% of positions in range → true
+  return withinRangeCount >= (totalPositions * 0.2);
 }
 
 // -------------------- Helpers -----------------------------
