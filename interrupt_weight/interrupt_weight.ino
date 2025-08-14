@@ -1,6 +1,3 @@
-#ifndef MODIFIED_ARDUINO_CODE_H
-#define MODIFIED_ARDUINO_CODE_H
-
 #include <Wire.h>
 #include <SparkFun_VL53L5CX_Library.h>
 #include "HX711.h"
@@ -61,6 +58,7 @@ void handleSerialCommands() {
     char cmd = Serial.read();
     switch (cmd) {
       case 'a':   // LED ON + short beep
+        scale.tare(10);
         digitalWrite(LED2, HIGH);
         digitalWrite(BUZZER, HIGH); // Pin 6
         delay(200);
@@ -107,7 +105,6 @@ void setup() {
   delay(400);
   scale.tare(10);           // Zero the scale
   delay(10);
-
   // ----- I2C (VL53L5CX) -----
   Wire.setSDA(0);
   Wire.setSCL(1);
@@ -131,6 +128,18 @@ void loop() {
   // ---- Handle serial commands for LED/Buzzer/Tare ----
   handleSerialCommands();
 
+  // ---- HX711: read & print weight with buzzer state ----
+  float weight_kg = scale.get_units(4) / 1000.0f;
+  OUT.print(buzzerState);
+  OUT.print(F(","));
+  OUT.print(weight_kg * 0.326, 2);
+  OUT.println(F(" kg"));
+
+  // Power cycle HX711 like old.ino
+  scale.power_down();
+  delay(10);
+  scale.power_up();
+
   // ---- ToF: collect data, set buzzerState if needed ----
   if (myImager.isDataReady()) {
     if (myImager.getRangingData(&measurementData)) {
@@ -138,33 +147,6 @@ void loop() {
     }
   }
 
-  // ---- Output based on buzzerState ----
-  if (buzzerState == 1) {
-    // Execute 't' (tare) immediately
-    scale.tare(10);
-    // Wait 500 ms before 'a'
-    delay(500);
-    // Execute 'a' (LED ON + short beep)
-    digitalWrite(LED2, HIGH);
-    digitalWrite(BUZZER, HIGH);
-    delay(200);
-    digitalWrite(BUZZER, LOW);
-    delay(500);
-    digitalWrite(LED2, LOW);
-    // Read weight from HX711
-    float weight_kg = scale.get_units(4) / 1000.0f;
-    OUT.print(buzzerState);
-    OUT.print(F(","));
-    OUT.print(weight_kg * 0.326, 2);
-    OUT.println(F(" kg"));
-    // Power cycle HX711
-    scale.power_down();
-    delay(10);
-    scale.power_up();
-  }
-
   // Small delay to prevent tight looping
   delay(3);
 }
-
-#endif // MODIFIED_ARDUINO_CODE_H
