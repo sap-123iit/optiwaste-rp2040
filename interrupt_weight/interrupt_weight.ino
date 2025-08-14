@@ -1,3 +1,6 @@
+#ifndef MODIFIED_ARDUINO_CODE_H
+#define MODIFIED_ARDUINO_CODE_H
+
 #include <Wire.h>
 #include <SparkFun_VL53L5CX_Library.h>
 #include "HX711.h"
@@ -163,3 +166,5 @@ void loop() {
   // Small delay to prevent tight looping
   delay(3);
 }
+
+#endif // MODIFIED_ARDUINO_CODE_H
